@@ -1,0 +1,53 @@
+appId: com.webyou.app
+productName: WebYou
+copyright: Copyright © 2026 WebYou
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+extraResources:
+  - from: resources/templates
+    to: templates
+    filter:
+      - '**/*'
+  - from: resources/licenses
+    to: licenses
+    filter:
+      - '**/*'
+asar: true
+compression: normal
+win:
+  target:
+    - target: zip
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-win-${arch}.zip
+  requestedExecutionLevel: asInvoker
+  # The bundled PHP build is Windows-only; Linux falls back to system PHP or
+  # the static preview server.
+  extraResources:
+    - from: resources/php
+      to: php
+      filter:
+        - '**/*'
+  extraFiles:
+    - from: LICENSE
+      to: LICENSE.txt
+    - from: resources/README-portable.txt
+      to: README.txt
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: tar.gz
+      arch:
+        - x64
+  category: Development
+  icon: build/icon.png
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
+  extraFiles:
+    - from: LICENSE
+      to: LICENSE.txt

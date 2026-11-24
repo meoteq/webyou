@@ -1,0 +1,206 @@
+/* Shared styles for the business card website. */
+:root {
+  --accent: #00639d;
+  --accent-soft: #cfe5ff;
+  --ink: #1b1b21;
+  --muted: #5c5c66;
+  --paper: #fbf8ff;
+  --card: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--accent);
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  padding: 8px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+nav a:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+nav a.active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+}
+
+.page.narrow {
+  max-width: 760px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.8fr);
+  gap: 32px;
+  align-items: center;
+  padding: 40px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #eef6ff, #ffffff 60%);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  margin: 32px 0 12px;
+  font-size: 24px;
+}
+
+.lead {
+  font-size: 20px;
+  color: #33333b;
+}
+
+.portrait {
+  width: 100%;
+  border-radius: 28px;
+  display: block;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.button {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.button:hover {
+  filter: brightness(1.08);
+}
+
+.text-button {
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.text-button:hover {
+  background: var(--accent-soft);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.card {
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid #e3e1ec;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.prose {
+  max-width: 60ch;
+}
+
+.contact-card {
+  margin: 24px 0;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid #e3e1ec;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.footer {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .portrait {
+    max-width: 280px;
+  }
+}

@@ -1,0 +1,122 @@
+/* Contact form styles. */
+:root {
+  --accent: #00639d;
+  --ink: #1b1b21;
+  --muted: #5c5c66;
+  --paper: #fbf8ff;
+  --line: #c7c5d0;
+  --error: #ba1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 32px 16px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+.page {
+  width: min(640px, 100%);
+  margin: 0 auto;
+  padding: 40px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(33, 93, 140, 0.14);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.12;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+label {
+  display: block;
+  margin: 20px 0 6px;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbf8ff;
+  color: var(--ink);
+  font: inherit;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  background: #ffffff;
+}
+
+button,
+.button {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+  filter: brightness(1.08);
+}
+
+.errors {
+  margin: 20px 0;
+  padding: 16px 16px 16px 36px;
+  border-radius: 16px;
+  background: #ffdad6;
+  color: var(--error);
+}
+
+.success blockquote {
+  margin: 16px 0;
+  padding: 16px 20px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  background: #eef6ff;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 24px;
+  }
+}

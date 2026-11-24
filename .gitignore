@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+*.tsbuildinfo
+
+# Runtime data: settings, recent projects, preview cache
+data/
+
+# Generated resources: binaries and notices come from npm scripts
+resources/php/
+resources/licenses/THIRD-PARTY-NOTICES.txt
+
+# Tests
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Local screenshots taken while reviewing the UI
+review-shots/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment overrides
+.env
+.env.*
+!.env.example
+
+# Editors and OS
+.vscode/
+.idea/
+*.suo
+*.sw?
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
