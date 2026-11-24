@@ -19,8 +19,8 @@
     "licenses": "node scripts/collect-licenses.mjs",
     "theme": "node scripts/generate-theme.mjs",
     "dist": "npm run dist:win",
-    "dist:win": "npm run build && npm run licenses && electron-builder --win zip",
-    "dist:linux": "npm run build && npm run licenses && electron-builder --linux",
+    "dist:win": "npm run build && npm run licenses && electron-builder --win zip --publish never",
+    "dist:linux": "npm run build && npm run licenses && electron-builder --linux --publish never",
     "dist:dir": "npm run build && npm run licenses && electron-builder --win dir"
   },
   "engines": {

@@ -115,15 +115,18 @@ jobs:
         run: |
           set -o pipefail
           npm run dist:linux 2>&1 | tee linux-build.log || {
+            status=$?
             {
               echo '### Linux build failed'
+              echo ''
               echo '```'
-              tail -n 80 linux-build.log
+              grep -n -iE 'error|fail|cannot|not found|denied|ENOSPC|EACCES' linux-build.log | tail -n 40 || true
+              echo '--- tail ---'
+              tail -n 60 linux-build.log
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
-            tail -n 20 linux-build.log | while IFS= read -r line; do
-              printf '::error::%s\n' "${line//'%'/'%25'}"
-            done
+            log_tail=$(tail -n 50 linux-build.log | sed -e 's/%/%25/g' -e 's/\r//g' | awk 'NR > 1 { printf "%%0A" } { printf "%s", $0 }')
+            printf '::error::Linux build failed with exit code %s. Tail: %s\n' "$status" "$log_tail"
             exit 1
           }
       - name: Upload Linux artifacts

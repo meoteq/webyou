@@ -476,6 +476,10 @@ await page.evaluate(() => window.webyou.app.info()) // именно app.info(), 
 9. Не коммить `resources/php`, `resources/licenses/THIRD-PARTY-NOTICES.txt`,
    `out/`, `dist/`, `data/`, `review-shots/` — всё это в `.gitignore`.
    Linux собирай через `npm run dist:linux` и не запускай там `fetch-php`.
+   `fetch-php` качает PHP с `downloads.php.net` (прямое зеркало) и
+   распаковывает системным `tar.exe`, откатываясь на `Expand-Archive`.
+   `dist:win`/`dist:linux` передают `--publish never`: публикует только
+   job `release`.
 10. Финальный порядок проверки:
     `typecheck` → `test` → `test:e2e` → `fetch-php` (если нужно) → `dist` →
     smoke упакованного exe.

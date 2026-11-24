@@ -136,22 +136,49 @@ async function download(target) {
   fail(`Download failed:\n${errors.join('\n')}`)
 }
 
+function outputTail(result) {
+  const parts = [result.error?.message, result.stderr, result.stdout]
+    .filter((part) => typeof part === 'string' && part.trim().length > 0)
+    .join('\n')
+    .trim()
+  return parts.length > 800 ? `…${parts.slice(-800)}` : parts
+}
+
+function systemTar() {
+  if (process.platform !== 'win32') return 'tar'
+  const systemRoot = process.env.SystemRoot ?? 'C:\\Windows'
+  const candidate = path.join(systemRoot, 'System32', 'tar.exe')
+  return fs.existsSync(candidate) ? candidate : 'tar'
+}
+
 function extract(archive, target) {
   log('Extracting…')
   if (process.platform === 'win32') {
+    // bsdtar ships with Windows 10+ and handles zip archives. It is much more
+    // reliable on CI runners than Windows PowerShell 5.1 Expand-Archive.
+    const tar = spawnSync(systemTar(), ['-xf', archive, '-C', target], { encoding: 'utf8' })
+    if (tar.status === 0) return
+    log(`tar failed${outputTail(tar) ? `: ${outputTail(tar)}` : ''}`)
+
     const escaped = (value) => value.replace(/'/g, "''")
     const command = [
       "$ErrorActionPreference = 'Stop'",
       `Expand-Archive -LiteralPath '${escaped(archive)}' -DestinationPath '${escaped(target)}' -Force`
     ].join('; ')
     const result = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', command], {
-      stdio: 'inherit'
+      encoding: 'utf8'
     })
-    if (result.status !== 0) fail('Expand-Archive failed. Is PowerShell available?')
+    if (result.status !== 0) {
+      const detail = [outputTail(tar), outputTail(result)].filter(Boolean).join('\n')
+      fail(`Could not extract ${PHP_ARCHIVE}.${detail ? `\n${detail}` : ''}`)
+    }
     return
   }
-  const result = spawnSync('unzip', ['-q', '-o', archive, '-d', target], { stdio: 'inherit' })
-  if (result.status !== 0) fail('unzip failed. Install unzip or extract the archive manually.')
+  const result = spawnSync('unzip', ['-q', '-o', archive, '-d', target], { encoding: 'utf8' })
+  if (result.status !== 0) {
+    const detail = outputTail(result)
+    fail(`unzip failed. Install unzip or extract the archive manually.${detail ? `\n${detail}` : ''}`)
+  }
 }
 
 async function main() {
