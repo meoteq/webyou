@@ -117,7 +117,7 @@ Useful commands:
 | `npm run dist:win` | Builds the Windows zip |
 | `npm run dist:linux` | Builds the Linux AppImage and tar.gz into `dist/` |
 
-`npm run fetch-php` pins **PHP 8.4.27-1 NTS Win32 vs17 x64**, checks the
+`npm run fetch-php` pins **PHP 8.4.28 NTS Win32 vs17 x64**, checks the
 official SHA-256 before unpacking, and refuses to run on other platforms.
 Binaries are never committed (`resources/php/` is ignored). Run the script after
 a fresh clone on Windows and before packaging the zip.

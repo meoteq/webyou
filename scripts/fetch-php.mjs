@@ -15,10 +15,13 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const PHP_VERSION = '8.4.27-1'
+const PHP_VERSION = '8.4.28'
 const PHP_ARCHIVE = `php-${PHP_VERSION}-nts-Win32-vs17-x64.zip`
-const PHP_SHA256 = 'dbae154a0a89791f36c3d48e68bae797878333e7d6cb5721e74617de59b63ab7'
-const DOWNLOAD_URL = `https://windows.php.net/downloads/releases/${PHP_ARCHIVE}`
+const PHP_SHA256 = 'c1f9280588b7b6ad7b518969022f0b0175f106fab9d0639ad0e4ce7cd47ac1ed'
+const DOWNLOAD_URLS = [
+  `https://windows.php.net/downloads/releases/${PHP_ARCHIVE}`,
+  `https://windows.php.net/downloads/releases/archives/${PHP_ARCHIVE}`
+]
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const destination = path.join(root, 'resources', 'php')
@@ -58,31 +61,50 @@ async function alreadyInstalled() {
 }
 
 async function download(target) {
-  log(`Downloading ${DOWNLOAD_URL}`)
-  const response = await fetch(DOWNLOAD_URL, { redirect: 'follow' })
-  if (!response.ok) fail(`Download failed: HTTP ${response.status} ${response.statusText}`)
-  const total = Number(response.headers.get('content-length') ?? 0)
-  const file = await fsp.open(target, 'w')
-  let received = 0
-  let lastPercent = -10
-  try {
-    for await (const chunk of response.body) {
-      await file.write(chunk)
-      received += chunk.length
-      if (total > 0) {
-        const percent = Math.floor((received / total) * 100)
-        if (percent >= lastPercent + 10) {
-          lastPercent = percent
-          log(`  ${percent}% (${(received / 1024 / 1024).toFixed(1)} MB)`)
+  let lastError = 'no download sources configured'
+  for (const url of DOWNLOAD_URLS) {
+    log(`Downloading ${url}`)
+    let response
+    try {
+      response = await fetch(url, { redirect: 'follow' })
+    } catch (error) {
+      lastError = `${url}: ${error instanceof Error ? error.message : String(error)}`
+      log(`  failed (${lastError}), trying the next mirror`)
+      continue
+    }
+    if (!response.ok) {
+      lastError = `${url}: HTTP ${response.status} ${response.statusText}`
+      log(`  failed (${lastError}), trying the next mirror`)
+      continue
+    }
+    const total = Number(response.headers.get('content-length') ?? 0)
+    const file = await fsp.open(target, 'w')
+    let received = 0
+    let lastPercent = -10
+    try {
+      for await (const chunk of response.body) {
+        await file.write(chunk)
+        received += chunk.length
+        if (total > 0) {
+          const percent = Math.floor((received / total) * 100)
+          if (percent >= lastPercent + 10) {
+            lastPercent = percent
+            log(`  ${percent}% (${(received / 1024 / 1024).toFixed(1)} MB)`)
+          }
         }
       }
+    } finally {
+      await file.close()
     }
-  } finally {
-    await file.close()
+    if (total > 0 && received !== total) {
+      lastError = `incomplete download: expected ${total} bytes, received ${received}`
+      log(`  failed (${lastError}), trying the next mirror`)
+      await fsp.rm(target, { force: true }).catch(() => undefined)
+      continue
+    }
+    return
   }
-  if (total > 0 && received !== total) {
-    fail(`Incomplete download: expected ${total} bytes, received ${received}`)
-  }
+  fail(`Download failed: ${lastError}`)
 }
 
 function extract(archive, target) {

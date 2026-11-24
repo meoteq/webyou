@@ -78,7 +78,7 @@ PHP берётся из `PATH`.
 - React **19.3.1**, TypeScript **5.9.3** (strict, `noUnusedLocals`,
   `noUnusedParameters`).
 - CodeMirror 6, HTMLHint, i18next + react-i18next, chokidar.
-- PHP **8.4.27-1 NTS Win32 vs17 x64** (официальная сборка windows.php.net).
+- PHP **8.4.28 NTS Win32 vs17 x64** (официальная сборка windows.php.net).
 - Тесты: Vitest 4, Playwright 1.56.
 - UI: Material 3 Expressive, токены из `SchemeVibrant`, исходный цвет
   `#215D8C`. Шрифты `Roboto Flex` и `Roboto Mono` лежат в пакете (офлайн).
@@ -429,7 +429,7 @@ Linux-пакеты локально не проверялись (на Windows н
 - `electron-builder.yml` и workflow разобраны `js-yaml`; конфиг принят
   electron-builder без ошибок схемы.
 - Packaged smoke: приложение запускается из `dist/win-unpacked`, `app.info()`
-  возвращает PHP 8.4.27, `isPackaged: true`, `WEBYOU_DATA_DIR` учитывается.
+  возвращает PHP 8.4.28, `isPackaged: true`, `WEBYOU_DATA_DIR` учитывается.
 - PHP-шаблон в предпросмотре реально выполняется.
 - Иконка и содержимое zip проверены.
 
