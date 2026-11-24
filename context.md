@@ -407,7 +407,7 @@ SHA-256 изменится после любой пересборки — не �
 - `windows` — windows: `fetch-php` + `dist`, артефакт `dist/*.zip`.
 - `linux` — ubuntu: `dist:linux`, артефакты `dist/*.AppImage`, `dist/*.tar.gz`.
 - `release` — на тег `v*`: скачивает артефакты и публикует GitHub Release
-  через `softprops/action-gh-release@v2`; нужен только `contents: write`,
+  через `softprops/action-gh-release@v3`; нужен только `contents: write`,
   секретов нет.
 
 Триггеры: push в `main`/`master`, теги `v*`, pull request, ручной запуск.

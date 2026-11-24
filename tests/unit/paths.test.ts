@@ -10,7 +10,7 @@ import {
   toUrlPath
 } from '@shared/paths'
 
-const root = path.resolve('C:/Projects/demo')
+const root = path.resolve('demo-project')
 
 describe('isInside', () => {
   it('accepts files below the root', () => {
@@ -30,7 +30,8 @@ describe('isInside', () => {
   })
 
   it('rejects sibling directories sharing the same prefix', () => {
-    expect(isInside(root, 'C:/Projects/demo-evil/file.txt')).toBe(false)
+    const sibling = path.resolve('demo-project-evil', 'file.txt')
+    expect(isInside(root, sibling)).toBe(false)
   })
 })
 
