@@ -111,7 +111,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build AppImage and tar.gz
-        run: npm run dist:linux
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run dist:linux 2>&1 | tee linux-build.log || {
+            {
+              echo '### Linux build failed'
+              echo '```'
+              tail -n 80 linux-build.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            tail -n 20 linux-build.log | while IFS= read -r line; do
+              printf '::error::%s\n' "${line//'%'/'%25'}"
+            done
+            exit 1
+          }
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v7
         with:

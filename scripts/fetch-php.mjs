@@ -19,7 +19,9 @@ const PHP_VERSION = '8.4.28'
 const PHP_ARCHIVE = `php-${PHP_VERSION}-nts-Win32-vs17-x64.zip`
 const PHP_SHA256 = 'c1f9280588b7b6ad7b518969022f0b0175f106fab9d0639ad0e4ce7cd47ac1ed'
 const DOWNLOAD_URLS = [
+  `https://downloads.php.net/~windows/releases/${PHP_ARCHIVE}`,
   `https://windows.php.net/downloads/releases/${PHP_ARCHIVE}`,
+  `https://downloads.php.net/~windows/releases/archives/${PHP_ARCHIVE}`,
   `https://windows.php.net/downloads/releases/archives/${PHP_ARCHIVE}`
 ]
 
@@ -34,6 +36,21 @@ function log(message) {
 
 function fail(message) {
   process.stderr.write(`[fetch-php] ${message}\n`)
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    const escaped = message
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A')
+    process.stdout.write(`::error::${escaped}\n`)
+  }
+  const summary = process.env.GITHUB_STEP_SUMMARY
+  if (summary) {
+    try {
+      fs.appendFileSync(summary, `### fetch-php failed\n\n\`\`\`\n${message}\n\`\`\`\n`)
+    } catch {
+      // The annotation above is enough if the summary cannot be written.
+    }
+  }
   process.exit(1)
 }
 
@@ -60,51 +77,63 @@ async function alreadyInstalled() {
   }
 }
 
-async function download(target) {
-  let lastError = 'no download sources configured'
-  for (const url of DOWNLOAD_URLS) {
-    log(`Downloading ${url}`)
-    let response
+async function downloadOnce(url, target) {
+  const response = await fetch(url, {
+    redirect: 'follow',
+    headers: { 'user-agent': 'WebYou-build/1.0 (+https://github.com/meoteq/webyou)' }
+  })
+  if (!response.ok) {
+    let detail = ''
     try {
-      response = await fetch(url, { redirect: 'follow' })
-    } catch (error) {
-      lastError = `${url}: ${error instanceof Error ? error.message : String(error)}`
-      log(`  failed (${lastError}), trying the next mirror`)
-      continue
+      const body = (await response.text()).replace(/\s+/g, ' ').trim()
+      if (body) detail = ` — ${body.slice(0, 200)}`
+    } catch {
+      // The status alone is enough when the error body cannot be read.
     }
-    if (!response.ok) {
-      lastError = `${url}: HTTP ${response.status} ${response.statusText}`
-      log(`  failed (${lastError}), trying the next mirror`)
-      continue
-    }
-    const total = Number(response.headers.get('content-length') ?? 0)
-    const file = await fsp.open(target, 'w')
-    let received = 0
-    let lastPercent = -10
-    try {
-      for await (const chunk of response.body) {
-        await file.write(chunk)
-        received += chunk.length
-        if (total > 0) {
-          const percent = Math.floor((received / total) * 100)
-          if (percent >= lastPercent + 10) {
-            lastPercent = percent
-            log(`  ${percent}% (${(received / 1024 / 1024).toFixed(1)} MB)`)
-          }
+    throw new Error(`HTTP ${response.status} ${response.statusText}${detail}`)
+  }
+  const total = Number(response.headers.get('content-length') ?? 0)
+  const file = await fsp.open(target, 'w')
+  let received = 0
+  let lastPercent = -10
+  try {
+    for await (const chunk of response.body) {
+      await file.write(chunk)
+      received += chunk.length
+      if (total > 0) {
+        const percent = Math.floor((received / total) * 100)
+        if (percent >= lastPercent + 10) {
+          lastPercent = percent
+          log(`  ${percent}% (${(received / 1024 / 1024).toFixed(1)} MB)`)
         }
       }
-    } finally {
-      await file.close()
     }
-    if (total > 0 && received !== total) {
-      lastError = `incomplete download: expected ${total} bytes, received ${received}`
-      log(`  failed (${lastError}), trying the next mirror`)
-      await fsp.rm(target, { force: true }).catch(() => undefined)
-      continue
-    }
-    return
+  } finally {
+    await file.close()
   }
-  fail(`Download failed: ${lastError}`)
+  if (total > 0 && received !== total) {
+    throw new Error(`incomplete download: expected ${total} bytes, received ${received}`)
+  }
+}
+
+async function download(target) {
+  const errors = []
+  for (const url of DOWNLOAD_URLS) {
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      log(`Downloading ${url}${attempt > 1 ? ` (attempt ${attempt})` : ''}`)
+      try {
+        await downloadOnce(url, target)
+        return
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error)
+        errors.push(`${url} -> ${reason}`)
+        log(`  failed: ${reason}`)
+        await fsp.rm(target, { force: true }).catch(() => undefined)
+        if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 2000))
+      }
+    }
+  }
+  fail(`Download failed:\n${errors.join('\n')}`)
 }
 
 function extract(archive, target) {
